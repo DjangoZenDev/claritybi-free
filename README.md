@@ -20,7 +20,7 @@ This is the **free version** of ClarityBI. It includes core functionality to hel
 - Print-friendly dashboard views
 - Period comparison charts (WoW/MoM)
 
-**Upgrade to ClarityBI Pro:** https://djangozen.com
+**Upgrade to ClarityBI Pro:** https://djangozen.com/product/claritybi-pro/
 
 ## Quick Start
 
@@ -50,5 +50,5 @@ python manage.py runserver
 5. Login: **admin** / **admin**
 
 ---
-*Free version by DjangoZen. Upgrade to Pro at https://djangozen.com*
+*Free version by DjangoZen. Upgrade to Pro at https://djangozen.com/product/claritybi-pro/*
 *Copyright 2026 DjangoZen. All Rights Reserved.*
