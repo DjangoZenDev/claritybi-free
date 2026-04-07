@@ -1,0 +1,29 @@
+<div class="rounded-lg border border-gray-200">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-slate-900">Top Regions by Revenue</h3>
+    </div>
+    <div class="divide-y divide-gray-100">
+        {% for row in top_customers %}
+        <div class="px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-xs font-bold text-blue-600">
+                    {{ forloop.counter }}
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-900">{{ row.region }}</p>
+                    <p class="text-xs text-slate-400">{{ row.total_orders }} orders &middot; {{ row.total_customers }} customers</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-semibold text-slate-900">${{ row.total_revenue|floatformat:0 }}</p>
+                <div class="w-20 h-1.5 bg-gray-100 rounded-full mt-1">
+                    {% widthratio row.total_revenue top_customers.0.total_revenue 100 as pct %}
+                    <div class="h-1.5 bg-blue-500 rounded-full" style="width: {% widthratio row.total_revenue top_customers.0.total_revenue 100 %}%"></div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="px-5 py-8 text-center text-sm text-slate-400">No data available.</div>
+        {% endfor %}
+    </div>
+</div>

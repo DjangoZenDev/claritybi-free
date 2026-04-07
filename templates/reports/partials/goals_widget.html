@@ -1,0 +1,44 @@
+<div class="rounded-lg border border-gray-200 p-5">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-slate-900">Goals Progress</h3>
+        <a href="{% url 'reports:goals_page' %}" class="text-xs font-medium text-blue-500 hover:text-blue-600 transition-colors no-print">View All</a>
+    </div>
+    {% if goals %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for goal in goals %}
+        <div class="flex items-center gap-3">
+            <!-- Small progress ring -->
+            <div class="flex-shrink-0 relative w-10 h-10">
+                <svg class="w-10 h-10 -rotate-90" viewBox="0 0 40 40">
+                    <circle cx="20" cy="20" r="16" fill="none" stroke="#f1f5f9" stroke-width="3" />
+                    <circle cx="20" cy="20" r="16" fill="none"
+                            stroke="{% if goal.is_overdue %}#ef4444{% elif goal.progress_pct >= 100 %}#10b981{% elif goal.progress_pct >= 60 %}#3b82f6{% else %}#f59e0b{% endif %}"
+                            stroke-width="3" stroke-linecap="round"
+                            style="stroke-dasharray: calc({{ goal.progress_pct }} * 1.005), 100.5;" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-600">{{ goal.progress_pct|floatformat:0 }}%</span>
+                </div>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-medium text-slate-800 truncate">{{ goal.name }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">
+                    {% if goal.is_overdue %}
+                    <span class="text-red-500">Overdue</span>
+                    {% elif goal.days_remaining is not None %}
+                    {{ goal.days_remaining }}d left
+                    {% else %}
+                    No deadline
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-4">
+        <p class="text-xs text-slate-400">No goals set yet</p>
+        <a href="{% url 'reports:goals_page' %}" class="inline-block mt-1 text-xs font-medium text-blue-500 hover:text-blue-600 transition-colors">Create a goal</a>
+    </div>
+    {% endif %}
+</div>

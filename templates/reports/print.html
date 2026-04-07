@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Print Report - ClarityBI{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media screen {
+        body { background: #f8fafc; }
+        .print-page { max-width: 800px; margin: 0 auto; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 48px; }
+    }
+    @media print {
+        .print-page { max-width: 100%; padding: 0; border: none; }
+        .print-controls { display: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Print controls -->
+<div class="print-controls mb-6 flex items-center justify-between no-print">
+    <div>
+        <h1 class="text-xl font-semibold text-slate-900 tracking-tight">Print Preview</h1>
+        <p class="mt-1 text-sm text-slate-400">Review before printing or saving as PDF</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <a href="{% url 'reports:dashboard' %}" class="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
+            Back
+        </a>
+        <button onclick="window.print()" class="inline-flex items-center gap-1.5 rounded-md bg-blue-500 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-blue-600 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18.75 12h.008v.008h-.008V12z" /></svg>
+            Print
+        </button>
+    </div>
+</div>
+
+<!-- Print page -->
+<div class="print-page">
+    <!-- Report header -->
+    <div class="mb-8 pb-6 border-b border-gray-200">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="flex h-6 w-6 items-center justify-center rounded bg-blue-500">
+                <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+            </div>
+            <span class="text-sm font-semibold text-slate-900">ClarityBI Report</span>
+        </div>
+        <h1 class="text-lg font-bold text-slate-900">Business Overview</h1>
+        <p class="text-xs text-slate-400 mt-1">Generated {{ today|date:"F j, Y" }} | Period: {{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }}</p>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="mb-8">
+        <h2 class="text-sm font-semibold text-slate-900 mb-3">Key Metrics</h2>
+        <div class="grid grid-cols-3 gap-3">
+            {% for kpi in kpi_cards %}
+            <div class="border border-gray-200 rounded p-3">
+                <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{{ kpi.name }}</span>
+                <div class="mt-1">
+                    {% if kpi.format == "currency" %}
+                    <span class="text-lg font-bold text-slate-900">${{ kpi.value|floatformat:0|default:"0" }}</span>
+                    {% elif kpi.format == "percent" %}
+                    <span class="text-lg font-bold text-slate-900">{{ kpi.value|floatformat:1 }}%</span>
+                    {% else %}
+                    <span class="text-lg font-bold text-slate-900">{{ kpi.value|floatformat:0|default:"0" }}</span>
+                    {% endif %}
+                </div>
+                <span class="text-[10px] {% if kpi.trend == 'up' %}text-emerald-600{% elif kpi.trend == 'down' %}text-red-500{% else %}text-slate-400{% endif %}">
+                    {% if kpi.trend == 'up' %}+{% endif %}{{ kpi.change }}% vs previous period
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sales summary table -->
+    <div class="mb-8">
+        <h2 class="text-sm font-semibold text-slate-900 mb-3">Sales Summary by Region</h2>
+        <table class="w-full text-left border border-gray-200">
+            <thead>
+                <tr class="bg-slate-50">
+                    <th class="px-3 py-2 text-xs font-medium text-slate-500 border-b border-gray-200">Region</th>
+                    <th class="px-3 py-2 text-xs font-medium text-slate-500 border-b border-gray-200 text-right">Revenue</th>
+                    <th class="px-3 py-2 text-xs font-medium text-slate-500 border-b border-gray-200 text-right">Orders</th>
+                    <th class="px-3 py-2 text-xs font-medium text-slate-500 border-b border-gray-200 text-right">Customers</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in region_summary %}
+                <tr class="border-b border-gray-100">
+                    <td class="px-3 py-2 text-xs text-slate-700">{{ row.region }}</td>
+                    <td class="px-3 py-2 text-xs text-slate-900 font-medium text-right">${{ row.total_revenue|floatformat:0 }}</td>
+                    <td class="px-3 py-2 text-xs text-slate-600 text-right">{{ row.total_orders }}</td>
+                    <td class="px-3 py-2 text-xs text-slate-600 text-right">{{ row.total_customers }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-3 py-6 text-center text-xs text-slate-400">No data available</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Goals summary -->
+    {% if goals %}
+    <div class="mb-8">
+        <h2 class="text-sm font-semibold text-slate-900 mb-3">Goals Progress</h2>
+        <div class="space-y-2">
+            {% for goal in goals %}
+            <div class="flex items-center justify-between border border-gray-200 rounded p-3">
+                <div>
+                    <span class="text-xs font-medium text-slate-800">{{ goal.name }}</span>
+                    <span class="text-[10px] text-slate-400 ml-2">{{ goal.get_category_display }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-24 h-1.5 bg-gray-100 rounded-full">
+                        <div class="h-1.5 rounded-full {% if goal.progress_pct >= 100 %}bg-emerald-500{% elif goal.progress_pct >= 60 %}bg-blue-500{% else %}bg-amber-400{% endif %}"
+                             style="width: {% if goal.progress_pct > 100 %}100{% else %}{{ goal.progress_pct|floatformat:0 }}{% endif %}%"></div>
+                    </div>
+                    <span class="text-xs font-medium text-slate-700 w-10 text-right">{{ goal.progress_pct|floatformat:0 }}%</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="pt-6 border-t border-gray-200 text-center">
+        <p class="text-[10px] text-slate-400">ClarityBI - Confidential | Generated {{ today|date:"F j, Y g:i A" }}</p>
+    </div>
+</div>
+{% endblock %}

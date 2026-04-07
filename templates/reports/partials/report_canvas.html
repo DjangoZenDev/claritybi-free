@@ -1,0 +1,68 @@
+<div class="space-y-6">
+    {% for section in sections %}
+
+    {% if section == "kpis" %}
+    <div hx-get="{% url 'reports:kpi_overview' %}"
+         hx-trigger="load"
+         hx-indicator=".htmx-indicator">
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="rounded-lg border border-gray-200 p-5 animate-pulse"><div class="h-4 bg-slate-100 rounded w-20 mb-3"></div><div class="h-8 bg-slate-100 rounded w-32"></div></div>
+            <div class="rounded-lg border border-gray-200 p-5 animate-pulse"><div class="h-4 bg-slate-100 rounded w-20 mb-3"></div><div class="h-8 bg-slate-100 rounded w-32"></div></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if section == "revenue_chart" %}
+    <div hx-get="{% url 'reports:revenue_chart' %}"
+         hx-trigger="load"
+         hx-indicator=".htmx-indicator">
+        <div class="rounded-lg border border-gray-200 p-6 animate-pulse">
+            <div class="h-4 bg-slate-100 rounded w-32 mb-4"></div>
+            <div class="h-64 bg-slate-50 rounded"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if section == "category_charts" %}
+    <div hx-get="{% url 'reports:category_charts' %}"
+         hx-trigger="load"
+         hx-indicator=".htmx-indicator">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-gray-200 p-6 animate-pulse"><div class="h-56 bg-slate-50 rounded"></div></div>
+            <div class="rounded-lg border border-gray-200 p-6 animate-pulse"><div class="h-56 bg-slate-50 rounded"></div></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if section == "top_regions" %}
+    <div hx-get="{% url 'reports:top_customers' %}"
+         hx-trigger="load"
+         hx-indicator=".htmx-indicator">
+        <div class="rounded-lg border border-gray-200 p-6 animate-pulse"><div class="h-48 bg-slate-50 rounded"></div></div>
+    </div>
+    {% endif %}
+
+    {% if section == "sales_table" %}
+    <div hx-get="{% url 'reports:sales_table' %}"
+         hx-trigger="load"
+         hx-indicator=".htmx-indicator">
+        <div class="rounded-lg border border-gray-200 p-6 animate-pulse"><div class="h-64 bg-slate-50 rounded"></div></div>
+    </div>
+    {% endif %}
+
+    {% if section == "goals" %}
+    <div hx-get="{% url 'reports:goals_widget' %}"
+         hx-trigger="load"
+         hx-indicator=".htmx-indicator">
+        <div class="rounded-lg border border-gray-200 p-6 animate-pulse"><div class="h-24 bg-slate-50 rounded"></div></div>
+    </div>
+    {% endif %}
+
+    {% endfor %}
+
+    {% if not sections %}
+    <div class="rounded-lg border border-dashed border-gray-200 p-16 text-center">
+        <p class="text-sm text-slate-400">No sections configured for this report</p>
+    </div>
+    {% endif %}
+</div>

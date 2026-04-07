@@ -1,0 +1,134 @@
+<div class="rounded-lg border border-gray-200 p-6">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h3 class="text-sm font-semibold text-slate-900">Revenue Over Time</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Daily revenue and order volume</p>
+        </div>
+    </div>
+    <div class="relative" style="height: 280px;">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+
+<script>
+(function() {
+    const ctx = document.getElementById('revenueChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if present
+    const existingChart = Chart.getChart(ctx);
+    if (existingChart) existingChart.destroy();
+
+    const labels = {{ labels_json|safe }};
+    const revenueData = {{ revenue_json|safe }};
+    const ordersData = {{ orders_json|safe }};
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Revenue',
+                    data: revenueData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHoverBackgroundColor: '#3b82f6',
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Orders',
+                    data: ordersData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'transparent',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4],
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHoverBackgroundColor: '#8b5cf6',
+                    yAxisID: 'y1',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: { size: 11, family: 'Inter' },
+                        color: '#94a3b8',
+                        padding: 16,
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 11, family: 'Inter' },
+                    bodyFont: { size: 11, family: 'Inter' },
+                    padding: 10,
+                    cornerRadius: 6,
+                    displayColors: true,
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    usePointStyle: true,
+                    callbacks: {
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                return ' Revenue: $' + context.parsed.y.toLocaleString();
+                            }
+                            return ' Orders: ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 10, family: 'Inter' },
+                        color: '#cbd5e1',
+                        maxTicksLimit: 12,
+                    },
+                    border: { display: false },
+                },
+                y: {
+                    position: 'left',
+                    grid: { color: '#f1f5f9', drawBorder: false },
+                    ticks: {
+                        font: { size: 10, family: 'Inter' },
+                        color: '#cbd5e1',
+                        callback: function(v) { return '$' + (v / 1000).toFixed(0) + 'k'; },
+                    },
+                    border: { display: false },
+                },
+                y1: {
+                    position: 'right',
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 10, family: 'Inter' },
+                        color: '#cbd5e1',
+                    },
+                    border: { display: false },
+                }
+            }
+        }
+    });
+})();
+</script>

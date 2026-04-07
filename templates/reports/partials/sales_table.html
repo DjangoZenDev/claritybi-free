@@ -1,0 +1,115 @@
+<div class="rounded-lg border border-gray-200">
+    <!-- Table Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <div>
+            <h3 class="text-sm font-semibold text-slate-900">Sales Data</h3>
+            <p class="text-xs text-slate-400 mt-0.5">{{ total_count }} record{{ total_count|pluralize }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Region Filter -->
+            <select hx-get="{% url 'reports:sales_table' %}"
+                    hx-target="#sales-table"
+                    hx-include="[name='category_filter']"
+                    name="region"
+                    class="rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                <option value="">All Regions</option>
+                {% for r in regions %}
+                <option value="{{ r }}" {% if r == region_filter %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+            </select>
+            <!-- Category Filter -->
+            <select hx-get="{% url 'reports:sales_table' %}"
+                    hx-target="#sales-table"
+                    hx-include="[name='region']"
+                    name="category_filter"
+                    class="rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                <option value="{{ c }}" {% if c == category_filter %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="border-b border-gray-100 bg-slate-50/50">
+                    <th class="px-6 py-3">
+                        <button hx-get="{% url 'reports:sales_table' %}?sort={% if sort_by == 'date' %}-date{% else %}date{% endif %}&days={{ days }}&region={{ region_filter }}&category={{ category_filter }}"
+                                hx-target="#sales-table"
+                                class="flex items-center gap-1 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700">
+                            Date
+                            {% if sort_by == 'date' %}<span class="text-blue-500">&#9650;</span>{% elif sort_by == '-date' %}<span class="text-blue-500">&#9660;</span>{% endif %}
+                        </button>
+                    </th>
+                    <th class="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Region</th>
+                    <th class="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
+                    <th class="px-6 py-3">
+                        <button hx-get="{% url 'reports:sales_table' %}?sort={% if sort_by == '-revenue' %}revenue{% else %}-revenue{% endif %}&days={{ days }}&region={{ region_filter }}&category={{ category_filter }}"
+                                hx-target="#sales-table"
+                                class="flex items-center gap-1 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700">
+                            Revenue
+                            {% if sort_by == '-revenue' %}<span class="text-blue-500">&#9660;</span>{% elif sort_by == 'revenue' %}<span class="text-blue-500">&#9650;</span>{% endif %}
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button hx-get="{% url 'reports:sales_table' %}?sort={% if sort_by == '-orders' %}orders{% else %}-orders{% endif %}&days={{ days }}&region={{ region_filter }}&category={{ category_filter }}"
+                                hx-target="#sales-table"
+                                class="flex items-center gap-1 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700">
+                            Orders
+                            {% if sort_by == '-orders' %}<span class="text-blue-500">&#9660;</span>{% elif sort_by == 'orders' %}<span class="text-blue-500">&#9650;</span>{% endif %}
+                        </button>
+                    </th>
+                    <th class="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Customers</th>
+                    <th class="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">AOV</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for sale in sales %}
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="px-6 py-3 text-sm text-slate-900 whitespace-nowrap">{{ sale.date|date:"M d, Y" }}</td>
+                    <td class="px-6 py-3 text-sm text-slate-600 whitespace-nowrap">{{ sale.region }}</td>
+                    <td class="px-6 py-3 text-sm text-slate-600 whitespace-nowrap">
+                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{{ sale.category }}</span>
+                    </td>
+                    <td class="px-6 py-3 text-sm font-medium text-slate-900 whitespace-nowrap">${{ sale.revenue|floatformat:2 }}</td>
+                    <td class="px-6 py-3 text-sm text-slate-600 whitespace-nowrap">{{ sale.orders }}</td>
+                    <td class="px-6 py-3 text-sm text-slate-600 whitespace-nowrap">{{ sale.customers }}</td>
+                    <td class="px-6 py-3 text-sm text-slate-600 whitespace-nowrap">${{ sale.avg_order_value|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-sm text-slate-400">No sales data found for this period.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="flex items-center justify-between border-t border-gray-200 px-6 py-3">
+        <p class="text-xs text-slate-400">
+            Page {{ page }} of {{ total_pages }}
+        </p>
+        <div class="flex items-center gap-1">
+            {% if has_prev %}
+            <button hx-get="{% url 'reports:sales_table' %}?page={{ prev_page }}&sort={{ sort_by }}&days={{ days }}&region={{ region_filter }}&category={{ category_filter }}"
+                    hx-target="#sales-table"
+                    class="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                Previous
+            </button>
+            {% endif %}
+            {% if has_next %}
+            <button hx-get="{% url 'reports:sales_table' %}?page={{ next_page }}&sort={{ sort_by }}&days={{ days }}&region={{ region_filter }}&category={{ category_filter }}"
+                    hx-target="#sales-table"
+                    class="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                Next
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
