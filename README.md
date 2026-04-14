@@ -1,5 +1,7 @@
 # ClarityBI Free
 
+![claritybi-free](docs/screenshots/hero.png)
+
 **Clean Minimalist Business Intelligence Dashboard — Free Edition**
 *By DjangoZen - https://djangozen.com*
 
